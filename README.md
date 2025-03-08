@@ -1,4 +1,4 @@
-<img src="https://github.com/R00tendo/goramq/blob/main/images/goramq.png?raw=true"></img>
+<img src="https://github.com/SpoofIMEI/goramq/blob/main/images/goramq.png?raw=true"></img>
 
 # GORAMQ (Golang Ram Query)
 <b>Like the name suggests, Goramq loads user supplied files into memory and then lets you search strings inside the files via a restful API.</b>
@@ -11,7 +11,7 @@ When a query comes through, Goramq activates a "lock" that prevents other querie
 ## Installation
 Note: Make sure you have Golang installed and the go bin directory added to your PATH variable.
 ```bash
-go install github.com/R00tendo/goramq@latest
+go install github.com/SpoofIMEI/goramq@latest
 ```
 
 ## API Docs
