@@ -1,30 +1,30 @@
 package main
 
 import (
-	"github.com/R00tendo/goramq/webserver"
-	"github.com/charmbracelet/log"
-	"os"
+	"bufio"
+	"bytes"
 	"errors"
 	"flag"
-	"os/signal"
-	"syscall"
 	"fmt"
-	"sync"
-	"bufio"
-	"strings"
 	"io"
+	"os"
+	"os/signal"
 	"runtime"
+	"strings"
+	"sync"
+	"syscall"
 	"time"
-	"bytes"
-)
 
+	"github.com/SpoofIMEI/goramq/webserver"
+	"github.com/charmbracelet/log"
+)
 
 var loaded []byte
 
 func load_qfiles(filenames *string) {
-	var loadedS  int
-	var loadedb  []byte
-	var qfilehs  []*os.File
+	var loadedS int
+	var loadedb []byte
+	var qfilehs []*os.File
 	var qfilesis []int
 	str_filenames := strings.Split(*filenames, "::")
 
@@ -39,7 +39,7 @@ func load_qfiles(filenames *string) {
 		qfilehs = append(qfilehs, qfileh)
 
 		_qfileS, _ := os.Stat(filename)
-		qfilesis    = append(qfilesis, int(_qfileS.Size()))
+		qfilesis = append(qfilesis, int(_qfileS.Size()))
 	}
 	////////
 
@@ -51,10 +51,10 @@ func load_qfiles(filenames *string) {
 	for ind, qfileh := range qfilehs {
 		log.Info(fmt.Sprintf("Loading file: %s", str_filenames[ind]))
 
-		for  {
+		for {
 			loadedS += block_size
 			if !quiet {
-					fmt.Printf("Loaded %d/%d\r", loadedS, qfilesis[ind])
+				fmt.Printf("Loaded %d/%d\r", loadedS, qfilesis[ind])
 			}
 			read, err := qfileh.Read(fbuffer)
 			if err == io.EOF {
@@ -68,25 +68,25 @@ func load_qfiles(filenames *string) {
 
 		if !nogc && !pgco {
 			runtime.GC()
-			log.Info(fmt.Sprintf("Garbage collecting for %ds (cleaning up previous file)",  loadedS/100000000*2))
+			log.Info(fmt.Sprintf("Garbage collecting for %ds (cleaning up previous file)", loadedS/100000000*2))
 			ctime := time.Now()
 			for {
-				if time.Since(ctime) > time.Duration(loadedS/100000000*2) *time.Second {
+				if time.Since(ctime) > time.Duration(loadedS/100000000*2)*time.Second {
 					break
 				}
-			}	
+			}
 		}
 	}
 
 	if !nogc && pgco {
 		runtime.GC()
-		log.Info(fmt.Sprintf("Garbage collecting for %ds",  loadedS/100000000*2))
+		log.Info(fmt.Sprintf("Garbage collecting for %ds", loadedS/100000000*2))
 		ctime := time.Now()
 		for {
-			if time.Since(ctime) > time.Duration(loadedS/100000000*2) *time.Second {
+			if time.Since(ctime) > time.Duration(loadedS/100000000*2)*time.Second {
 				break
 			}
-		}	
+		}
 	}
 	//////////
 
@@ -96,16 +96,15 @@ func load_qfiles(filenames *string) {
 	loaded = loadedb
 }
 
-
 func query_backend() {
-	var temp_results      []string
-	
+	var temp_results []string
+
 	//Query the data and send html response
 	for {
 		var output_settings webserver.Squery_settings
-		temp_results     = []string{}
-		query_settings  := <- querych
-		search_terms    := strings.Split(query_settings.Query, "::")
+		temp_results = []string{}
+		query_settings := <-querych
+		search_terms := strings.Split(query_settings.Query, "::")
 
 		log.Info(fmt.Sprintf("New query:%s", strings.Join(search_terms, ",")))
 
@@ -121,7 +120,7 @@ func query_backend() {
 					}
 				} else if bytes.Contains(line, []byte(search_term)) {
 					matching_trms += 1
-				} 
+				}
 			}
 
 			if matching_trms == len(search_terms) {
@@ -140,10 +139,10 @@ func query_backend() {
 			output_settings.Output = "<h1>Too many results</h1>"
 			querych <- output_settings
 			continue
-		} 
+		}
 
 		log.Info(fmt.Sprintf("Search completed, %d results", len(temp_results)))
-		
+
 		output_settings.Output = ""
 		if len(temp_results) == 0 {
 			output_settings.Output += "No results"
@@ -159,13 +158,12 @@ func query_backend() {
 
 }
 
-
 var querych chan webserver.Squery_settings
-var quiet        bool 
-var nogc         bool
-var pgco         bool
-var result_limit int 
-var block_size   int
+var quiet bool
+var nogc bool
+var pgco bool
+var result_limit int
+var block_size int
 var logo string = string("\033[36m") + `
 ________________ ________ _______ ______  __________ 
 __  ____/__  __ \___  __ \___    |___   |/  /__  __ \
@@ -176,10 +174,10 @@ _  / __  _  / / /__  /_/ /__  /| |__  /|_/ / _  / / /
 
 func main() {
 	//Variables
-	killch  := make(chan bool, 1)
+	killch := make(chan bool, 1)
 	var killwg sync.WaitGroup
 
-	querych =  make(chan webserver.Squery_settings, 1)
+	querych = make(chan webserver.Squery_settings, 1)
 	//////////
 
 	//Setup keyboard interrupt handler
@@ -187,10 +185,10 @@ func main() {
 	signal.Notify(kbintr, os.Interrupt, os.Kill, syscall.SIGTERM)
 	killwg.Add(1)
 	go func() {
-		<- kbintr
+		<-kbintr
 		signal.Stop(kbintr)
 		killch <- true
-		<- killch
+		<-killch
 		log.Info("Exiting...")
 		killwg.Done()
 		os.Exit(0)
@@ -201,8 +199,8 @@ func main() {
 
 	//Flag arguments
 	queryfiles := flag.String("filenames", "", "Files to serve (separated with ::)")
-	ladr       := flag.String("listener", "127.0.0.1:9112", "Web server listener (IP:PORT)")
-	api_pass   := flag.String("password", "", "Password protects the API")
+	ladr := flag.String("listener", "127.0.0.1:9112", "Web server listener (IP:PORT)")
+	api_pass := flag.String("password", "", "Password protects the API")
 	flag.BoolVar(&quiet, "quiet", false, "When used, Goramq will not display the file loading progress (perfomance boost)")
 	flag.IntVar(&block_size, "blocksize", 1024, "How big chunks the files will be loaded in")
 	flag.IntVar(&result_limit, "result-limit", 50000, "How many results you can receive (over limit = error message)")
