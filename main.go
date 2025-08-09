@@ -15,7 +15,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/SpoofIMEI/goramq/webserver"
+	"github.com/Varppi/goramq/webserver"
 	"github.com/charmbracelet/log"
 )
 

@@ -1,4 +1,4 @@
-module github.com/SpoofIMEI/goramq
+module github.com/Varppi/goramq
 
 go 1.20
 
