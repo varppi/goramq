@@ -11,7 +11,7 @@ When a query comes through, Goramq activates a "lock" that prevents other querie
 ## Installation
 Note: Make sure you have Golang installed and the go bin directory added to your PATH variable.
 ```bash
-go install github.com/SpoofIMEI/goramq@latest
+go install github.com/Varppi/goramq@latest
 ```
 
 ## API Docs
