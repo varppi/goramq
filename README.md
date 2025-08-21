@@ -1,4 +1,4 @@
-<img src="https://github.com/SpoofIMEI/goramq/blob/main/images/goramq.png?raw=true"></img>
+<img src="https://github.com/Varppi/goramq/blob/main/images/goramq.png?raw=true"></img>
 
 # GORAMQ (Golang Ram Query)
 <b>Like the name suggests, Goramq loads user supplied files into memory and then lets you search strings inside the files via a restful API.</b>
